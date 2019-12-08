@@ -1,6 +1,8 @@
 /*
    Arduino and MPU6050 Accelerometer and Gyroscope Sensor Tutorial
    by Dejan, https://howtomechatronics.com
+   Code modified for CAN bus integration
+   Values scaled by a factor of 100 and biased.
 */
 #include <Wire.h>
 #include <SPI.h>
@@ -100,18 +102,32 @@ void loop() {
   float b=analogRead(A0)*5/1024;
 //  Serial.println(a);
 {   
-
-  unsigned int b=(unsigned int) (AccX*100);
-  unsigned int d=(unsigned int) (AccY*100);
-  unsigned int f=(unsigned int) (AccZ*100);
-  unsigned int h=(unsigned int) (GyroX*100);
-  byte *p=(byte*) &AccX;
-  byte *q=(byte*) &AccY;
-  byte *r=(byte*) &AccZ;
-  byte *t=(byte*) &GyroY;
-  byte *u=(byte*) &GyroZ;
   
-  byte *s=(byte*) &GyroX;
+  unsigned int b=(unsigned int) (300+AccX*100);
+//  if(AccX<0) {
+//    b=(unsigned int) (300+AccX*100);
+//  }
+  unsigned int d=(unsigned int) (300+AccY*100); //note data centered at 300
+  Serial.println(b);
+//  if(AccY<0) {
+//  d=(unsigned int) (300+(AccY*100));
+//  }
+  Serial.println(d);
+  unsigned int f=(unsigned int) (300+AccZ*100);
+//  if(AccZ<0) {
+//  f=(unsigned int) (300+AccZ*100);
+//  }
+  Serial.println(f);
+  unsigned int h=(unsigned int) (30000+GyroX*100); //note data centered at 30000
+  unsigned int GyroYt=(unsigned int) (30000+GyroY*100);
+  unsigned int GyroZt=(unsigned int) (30000+GyroZ*100);
+  byte *p=(byte*) &b;
+  byte *q=(byte*) &d;
+  byte *r=(byte*) &f;
+  byte *t=(byte*) &GyroYt;
+  byte *u=(byte*) &GyroZt;
+  
+  byte *s=(byte*) &h;
   Serial.println("In loop");
   CAN.sendMsgBuf(0x43, 0, 4, p);
 
